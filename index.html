@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VEMBU MedAI Emulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app" class="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 p-4 sm:p-6 lg:p-8">
+        <div class="card max-w-4xl mx-auto">
+            <div class="card-header">
+                <h1 class="card-title text-3xl font-bold text-center text-primary">VEMBU MedAI Emulator</h1>
+                <p class="card-description text-center text-lg">AI-Powered Medical Prescription Analysis</p>
+            </div>
+            <div class="card-content">
+                <div class="tabs">
+                    <div class="tabs-list grid w-full grid-cols-2">
+                        <button class="tab-trigger" data-tab="upload">Upload Files</button>
+                        <button class="tab-trigger" data-tab="patient">Patient Details</button>
+                    </div>
+                    <div class="tab-content" id="uploadTab">
+                        <form id="uploadForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label for="prescription" class="label">Upload Prescription</label>
+                                    <input id="prescription" type="file" class="input" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="photo" class="label">Patient Photo</label>
+                                    <div class="flex space-x-2">
+                                        <input id="photo" type="file" class="input">
+                                        <button type="button" id="captureBtn" class="button">
+                                            <span class="icon">📷</span>
+                                            Capture
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="cameraContainer" class="mt-4" style="display: none;">
+                                <video id="video" autoplay class="w-full max-w-md mx-auto"></video>
+                                <button id="takePhotoBtn" class="button mt-2">Take Photo</button>
+                                <canvas id="canvas" style="display: none;" width="640" height="480"></canvas>
+                            </div>
+                            <div id="photoGallery" class="mt-4" style="display: none;">
+                                <h3 class="font-semibold mb-2">Patient Photos:</h3>
+                                <div id="photoContainer" class="flex flex-wrap gap-2"></div>
+                                <button id="addPhotoBtn" class="button outline w-24 h-24 flex flex-col items-center justify-center">
+                                    <span class="icon">+</span>
+                                    <span class="text-xs mt-1">Add Photo</span>
+                                </button>
+                            </div>
+                            <div id="ocrResult" class="mt-4" style="display: none;">
+                                <h3 class="font-semibold mb-2">OCR Result:</h3>
+                                <p class="bg-gray-100 p-2 rounded"></p>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-content" id="patientTab" style="display: none;">
+                        <form id="patientForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label for="name" class="label">Patient Name</label>
+                                    <input id="name" name="name" type="text" class="input" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="age" class="label">Age</label>
+                                    <input id="age" name="age" type="number" class="input" required>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label for="bloodGroup" class="label">Blood Group</label>
+                                    <select id="bloodGroup" name="bloodGroup" class="select" required>
+                                        <option value="">Select blood group</option>
+                                        <option value="A+">A+</option>
+                                        <option value="A-">A-</option>
+                                        <option value="B+">B+</option>
+                                        <option value="B-">B-</option>
+                                        <option value="AB+">AB+</option>
+                                        <option value="AB-">AB-</option>
+                                        <option value="O+">O+</option>
+                                        <option value="O-">O-</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="gender" class="label">Gender</label>
+                                    <select id="gender" name="gender" class="select" required>
+                                        <option value="">Select gender</option>
+                                        <option value="male">Male</option>
+                                        <option value="female">Female</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-2">
+                                    <label for="phone" class="label">Phone Number</label>
+                                    <input id="phone" name="phone" type="tel" class="input" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="address" class="label">Address</label>
+                                    <textarea id="address" name="address" class="textarea" required></textarea>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <button id="submitBtn" type="submit" class="button w-full mt-6">
+                    <span class="icon">📤</span>
+                    Analyze Prescription
+                </button>
+            </div>
+            <div id="analysisResult" class="card-footer flex flex-col space-y-4" style="display: none;">
+                <div class="w-full p-4 bg-primary/10 rounded-lg">
+                    <h3 class="font-semibold text-lg mb-2">Analysis Result:</h3>
+                    <p id="analysisText"></p>
+                </div>
+                <button id="downloadBtn" class="button w-full">
+                    <span class="icon">📥</span>
+                    Download PDF Report
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
